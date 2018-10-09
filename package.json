@@ -1,28 +1,53 @@
 {
-  "name": "bip70-js",
-  "version": "2.0.1",
-  "description": "",
-  "main": "main.js",
-  "scripts": {
-    "test": "mocha",
-    "clean": "rm -rf build/* && find lib -name '*.js' -delete",
-    "coverage-test": "nyc --reporter=html --reporter=text --reporter=clover mocha"
+  "_from": "bip70-js",
+  "_id": "bip70-js@2.0.0",
+  "_inBundle": false,
+  "_integrity": "sha1-6n1PWmn0X9MDO9P4zTac2ym2zdA=",
+  "_location": "/bip70-js",
+  "_phantomChildren": {
+    "@protobufjs/aspromise": "1.1.2",
+    "@protobufjs/base64": "1.1.2",
+    "@protobufjs/codegen": "2.0.4",
+    "@protobufjs/eventemitter": "1.1.0",
+    "@protobufjs/fetch": "1.1.0",
+    "@protobufjs/float": "1.0.2",
+    "@protobufjs/inquire": "1.1.0",
+    "@protobufjs/path": "1.1.2",
+    "@protobufjs/pool": "1.1.0",
+    "@protobufjs/utf8": "1.1.0",
+    "@types/long": "4.0.0",
+    "@types/node": "10.11.5"
   },
-  "repository": {
-    "type": "git",
-    "url": "github.com/bip70/bip70-js"
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "bip70-js",
+    "name": "bip70-js",
+    "escapedName": "bip70-js",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
   },
-  "keywords": [
-    "bip70",
-    "bitcoin"
+  "_requiredBy": [
+    "#USER",
+    "/"
   ],
-  "author": "Thomas Kerin",
-  "license": "MIT",
+  "_resolved": "https://registry.npmjs.org/bip70-js/-/bip70-js-2.0.0.tgz",
+  "_shasum": "ea7d4f5a69f45fd3033bd3f8cd369cdb29b6cdd0",
+  "_spec": "bip70-js",
+  "_where": "/Users/gamaroff/Development/experiments/bitcoin/playground",
+  "author": {
+    "name": "Thomas Kerin"
+  },
+  "bundleDependencies": false,
   "dependencies": {
     "axios": "^0.17.0",
     "jsrsasign": "^8.0.4",
-    "protobufjs": "^6.8.0"
+    "protobufjs": "^6.8.0",
+    "request": "^2.88.0"
   },
+  "deprecated": false,
+  "description": "bip70-js =========",
   "devDependencies": {
     "brfs": "^1.4.3",
     "browserify": "*",
@@ -40,5 +65,22 @@
     "mocha": "*",
     "nyc": "^11.3.0",
     "watchify": "*"
-  }
+  },
+  "keywords": [
+    "bip70",
+    "bitcoin"
+  ],
+  "license": "MIT",
+  "main": "main.js",
+  "name": "bip70-js",
+  "repository": {
+    "type": "git",
+    "url": "github.com/bip70/bip70-js"
+  },
+  "scripts": {
+    "clean": "rm -rf build/* && find lib -name '*.js' -delete",
+    "coverage-test": "nyc --reporter=html --reporter=text --reporter=clover mocha",
+    "test": "mocha"
+  },
+  "version": "2.0.0"
 }

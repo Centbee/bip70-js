@@ -3,19 +3,20 @@
 var RequestBuilder = require('./request_builder');
 var ProtoBuf = require('./protobuf');
 var X509 = require('./x509');
-var NetworkConfig = require('./config');
+var MIMEType = require('./mimetype');
 
 exports = module.exports = {
     RequestBuilder: RequestBuilder,
     HttpClient: require('./client'),
     ProtoBuf: ProtoBuf,
     X509: X509,
-    NetworkConfig: NetworkConfig
+    MIMEType: MIMEType
 };
 
-},{"./client":2,"./config":3,"./protobuf":4,"./request_builder":6,"./x509":8}],2:[function(require,module,exports){
+},{"./client":2,"./mimetype":3,"./protobuf":4,"./request_builder":6,"./x509":8}],2:[function(require,module,exports){
 (function (Buffer){
 var axios = require('axios');
+var MIMEType = require('./mimetype');
 var PKIType = require('./x509/pkitype');
 var ProtoBuf = require('./protobuf');
 var PaymentRequest = ProtoBuf.PaymentRequest;
@@ -40,20 +41,19 @@ var HttpClient = function() {
  *
  * @param {string} url
  * @param {Validator} validator
- * @param {NetworkConfig} networkConfig
  * @return Promise of PaymentRequest
  */
-HttpClient.prototype.getRequest = function(url, validator, networkConfig) {
+HttpClient.prototype.getRequest = function(url, validator) {
     return axios({
         method: 'get',
         headers: {
-            "Accept": networkConfig.getMimeTypes().PAYMENT_REQUEST
+            "Accept": MIMEType.PAYMENT_REQUEST
         },
         url: url,
         responseType: 'arraybuffer'
     })
         .then(function(response) {
-            checkContentType(response, networkConfig.getMimeTypes().PAYMENT_REQUEST);
+            checkContentType(response, MIMEType.PAYMENT_REQUEST);
 
             var buf = Buffer.from(response.data);
             var paymentRequest = PaymentRequest.decode(buf);
@@ -108,25 +108,24 @@ HttpClient.prototype.preparePayment = function(details, txs, memo) {
  * @param {ProtoBuf.PaymentDetails} details
  * @param {string[]} txs
  * @param {string|null} memo
- * @param {NetworkConfig} networkConfig
  * @returns Promise of PaymentACK
  */
-HttpClient.prototype.sendPayment = function(details, txs, memo, networkConfig) {
+HttpClient.prototype.sendPayment = function(details, txs, memo) {
     var payment = this.preparePayment(details, txs, memo);
     var paymentData = ProtoBuf.Payment.encode(payment).final();
 
     return axios({
         method: 'post',
         headers: {
-            "Accept": networkConfig.getMimeTypes().PAYMENT_ACK,
-            "Content-Type": networkConfig.getMimeTypes().PAYMENT
+            "Accept": MIMEType.PAYMENT_ACK,
+            "Content-Type": MIMEType.PAYMENT
         },
         url: details.paymentUrl,
         data: paymentData,
         responseType: 'arraybuffer'
     })
         .then(function(response) {
-            checkContentType(response, networkConfig.getMimeTypes().PAYMENT_ACK);
+            checkContentType(response, MIMEType.PAYMENT_ACK);
             var buf = Buffer.from(response.data);
             return ProtoBuf.PaymentACK.decode(buf);
         });
@@ -135,31 +134,14 @@ HttpClient.prototype.sendPayment = function(details, txs, memo, networkConfig) {
 module.exports = HttpClient;
 
 }).call(this,require("buffer").Buffer)
-},{"./protobuf":4,"./x509/pkitype":9,"axios":24,"buffer":50}],3:[function(require,module,exports){
+},{"./mimetype":3,"./protobuf":4,"./x509/pkitype":9,"axios":24,"buffer":50}],3:[function(require,module,exports){
 
-function NetworkConfig(mimeTypes) {
-    if (!['PAYMENT_REQUEST', 'PAYMENT', 'PAYMENT_ACK'].every(function(key) {
-        return key in mimeTypes;
-    })) {
-        throw new Error("Missing MIME types");
-    }
+var MIMEType = {};
+MIMEType.PAYMENT_REQUEST = "application/bitcoin-paymentrequest";
+MIMEType.PAYMENT = "application/bitcoin-payment";
+MIMEType.PAYMENT_ACK = "application/bitcoin-paymentack";
 
-    this.mimeTypes = mimeTypes;
-}
-
-NetworkConfig.prototype.getMimeTypes = function() {
-    return this.mimeTypes;
-};
-
-NetworkConfig.Bitcoin = function() {
-    return new NetworkConfig({
-        PAYMENT_REQUEST: "application/bitcoin-paymentrequest",
-        PAYMENT: "application/bitcoin-payment",
-        PAYMENT_ACK: "application/bitcoin-paymentack"
-    });
-};
-
-module.exports = NetworkConfig;
+module.exports = MIMEType;
 
 },{}],4:[function(require,module,exports){
 var protobuf = require("protobufjs");
@@ -14824,11 +14806,11 @@ describe("GetSignatureAlgorithm", function() {
 
         assert.throws(function() {
             bip70.X509.GetSignatureAlgorithm(mockKey, "unknown");
-        });
+        }, "Unknown PKI type or no signature algorithm specified.");
 
         assert.throws(function() {
             bip70.X509.GetSignatureAlgorithm(mockKey, bip70.X509.PKIType.NONE);
-        });
+        }, "Unknown PKI type or no signature algorithm specified.");
 
         cb();
     });
@@ -14843,7 +14825,7 @@ describe("GetSignatureAlgorithm", function() {
 
         assert.throws(function() {
             bip70.X509.GetSignatureAlgorithm(mockKey, "unknown");
-        });
+        }, "Unknown public key type");
 
         cb();
     });
@@ -14871,7 +14853,7 @@ describe('ChainPathBuilder', function() {
 
         assert.doesNotThrow(function() {
             validator.validate();
-        });
+        }, 'no errors expected during validation');
 
         cb();
     });
@@ -14992,7 +14974,7 @@ describe("RequestValidator", function() {
 
             assert.throws(function() {
                 validator.verifyX509Details(req);
-            });
+            }, "Invalid signature on request");
 
             cb();
         });
